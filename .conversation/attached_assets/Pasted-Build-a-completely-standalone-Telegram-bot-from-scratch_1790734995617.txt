@@ -1,0 +1,89 @@
+Build a completely standalone Telegram bot from scratch. I have NOT provided any casino code and you do not need any casino code.
+
+I will provide only one thing: the Telegram BOT_TOKEN, stored securely as a Replit Secret named BOT_TOKEN.
+
+MAIN PURPOSE
+
+I have Stars in the bot’s own Telegram balance.
+
+I want the bot to send Telegram Gifts to a recipient using those Stars.
+
+For eligible gifts, I specifically want this flow:
+
+BOT’S STARS
+→ select an eligible regular Gift
+→ use sendGift with pay_for_upgrade=true
+→ bot prepays the upgrade cost
+→ recipient receives the gift with the upgrade cost prepaid and can upgrade it to a Unique/Collectible Gift.
+
+I am NOT asking you to send an already-existing Unique Gift from an inventory.
+
+7 GIFTS
+
+I want to send 7 gifts.
+
+They must be sent ONE AT A TIME.
+
+For every individual gift:
+
+1. Show the available gift.
+2. Show its gift_id.
+3. Show gift price in Stars.
+4. Show upgrade_star_count when available.
+5. Show the total Stars required.
+6. Show any quantity/availability information provided by the API.
+7. Ask me for confirmation.
+8. Only after I confirm, send that ONE gift.
+9. After it succeeds, wait for me to choose/confirm the next gift.
+
+NEVER automatically send all 7 gifts.
+
+RECIPIENT
+
+Let me enter the recipient’s Telegram user ID.
+
+3-MONTH PREMIUM
+
+Also add a separate option to send a 3-month Telegram Premium gift.
+
+Cost: 1,000 Stars.
+
+Require confirmation before sending it.
+
+IMPORTANT API RULES
+
+Use ONLY the official Telegram Bot API.
+
+Use the current official API documentation.
+
+Do NOT use:
+
+* MTProto
+* api_id
+* api_hash
+* Telethon
+* Pyrogram
+* User accounts
+* Session strings
+
+Do NOT invent API methods or parameters.
+
+Do NOT claim that a gift is immediately resellable.
+
+The Bot API does not provide future resale/transfer cooldown information for a regular gift before it is sent, so clearly state when that information is unavailable.
+
+Do not invent gift names if the API does not provide a name. Use the sticker/emoji and exact gift_id instead.
+
+IMPORTANT
+
+Keep the project extremely simple.
+
+Do not build a casino system.
+Do not modify any existing casino project.
+Do not add unnecessary features.
+
+First verify the official Bot API methods, then implement the working bot.
+
+If something is genuinely impossible with the official Bot API, stop and tell me exactly which part is impossible. Do NOT replace it with a fake or simulated system.
+
+Do not waste time repeatedly researching the same thing. Build the basic working version once the API requirements above are confirmed.
