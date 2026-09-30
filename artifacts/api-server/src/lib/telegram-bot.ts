@@ -18,7 +18,6 @@ const REGULAR_GIFT_LIMIT = 7;
 const PREMIUM_STAR_COUNT = 1000;
 const GIFT_PAGE_SIZE = 8;
 const ALLOWED_TELEGRAM_USER_ID = 8598790977;
-const ALLOWED_TELEGRAM_USERNAME = "arshxy";
 
 interface GiftMenu {
   gifts: TelegramGift[];
@@ -35,14 +34,8 @@ function isPrivateMessage(
   return message.chat.type === "private" && message.from?.id === message.chat.id;
 }
 
-function isAllowedTelegramUser(user: {
-  id: number;
-  username?: string;
-}): boolean {
-  return (
-    user.id === ALLOWED_TELEGRAM_USER_ID &&
-    user.username?.toLowerCase() === ALLOWED_TELEGRAM_USERNAME
-  );
+function isAllowedTelegramUser(user: { id: number }): boolean {
+  return user.id === ALLOWED_TELEGRAM_USER_ID;
 }
 
 function quantityLines(gift: TelegramGift): string[] {

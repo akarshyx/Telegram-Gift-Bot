@@ -10,7 +10,7 @@ A private Telegram bot for sending confirmed regular Gifts with prepaid upgrade 
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
 - Required secret: `BOT_TOKEN` — Telegram BotFather token; keep it in Replit Secrets
-- Bot access is restricted to the configured Telegram user ID and username; other users and groups are ignored
+- Bot access is restricted by the owner's numeric Telegram user ID only; usernames are not used for authorization, and other users/groups are ignored
 - Bot commands: `/menu`, `/recipient`, `/gifts`, `/premium`, `/cancel`
 
 ## Stack
@@ -29,7 +29,7 @@ _Populate as you build — short repo map plus pointers to the source-of-truth f
 ## Architecture decisions
 
 - Uses only Telegram's official HTTPS Bot API and long polling; no MTProto or Telegram user session.
-- Persists the owner ID, recipient, send count, and pending send in a private local JSON file; no database is needed.
+- Uses a fixed numeric Telegram user ID allowlist. Recipient, send count, and pending-send state are persisted in a private local JSON file; no database is needed.
 - Each send is a separate user-confirmed API call. Ambiguous network outcomes require owner resolution rather than an automatic retry.
 
 ## Product
@@ -45,7 +45,7 @@ _Populate as you build — explicit user instructions worth remembering across s
 
 ## Gotchas
 
-- Owner claim codes appear in workflow logs only when no owner has been claimed; they expire after 30 minutes.
+- There is no `/claim` command. Bot messages are accepted only in private chats from the allowlisted numeric Telegram user ID.
 - Gift availability can change between display and confirmation; Telegram may reject a send if the gift is no longer available or the Stars balance is insufficient.
 - A transport failure after a send can leave delivery uncertain. Check Telegram before resolving it; the bot will not retry automatically.
 
