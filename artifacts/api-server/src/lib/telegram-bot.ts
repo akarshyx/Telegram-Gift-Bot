@@ -17,7 +17,8 @@ import {
 const REGULAR_GIFT_LIMIT = 7;
 const PREMIUM_STAR_COUNT = 1000;
 const GIFT_PAGE_SIZE = 8;
-const CLAIM_CODE_LIFETIME_MS = 30 * 60 * 1000;
+const ALLOWED_TELEGRAM_USER_ID = 8598790977;
+const ALLOWED_TELEGRAM_USERNAME = "arshxy";
 
 interface GiftMenu {
   gifts: TelegramGift[];
@@ -32,6 +33,16 @@ function isPrivateMessage(
   message: NonNullable<TelegramUpdate["message"]>,
 ): boolean {
   return message.chat.type === "private" && message.from?.id === message.chat.id;
+}
+
+function isAllowedTelegramUser(user: {
+  id: number;
+  username?: string;
+}): boolean {
+  return (
+    user.id === ALLOWED_TELEGRAM_USER_ID &&
+    user.username?.toLowerCase() === ALLOWED_TELEGRAM_USERNAME
+  );
 }
 
 function quantityLines(gift: TelegramGift): string[] {
@@ -94,8 +105,6 @@ export async function runTelegramBot(): Promise<void> {
   const state = await loadTelegramBotState();
   const giftMenus = new Map<string, GiftMenu>();
   let offset = 0;
-  let claimCode: string | undefined;
-  let claimCodeExpiresAt = 0;
 
   if (state.pendingSend?.status === "sending") {
     state.pendingSend.status = "uncertain";
@@ -107,15 +116,6 @@ export async function runTelegramBot(): Promise<void> {
     { username: bot.username ?? "no username returned" },
     "Telegram gift bot connected using the official Bot API",
   );
-
-  if (state.ownerUserId === undefined) {
-    claimCode = randomBytes(6).toString("base64url");
-    claimCodeExpiresAt = Date.now() + CLAIM_CODE_LIFETIME_MS;
-    logger.info(
-      { claimCode },
-      "One-time owner claim code; send /claim <code> to the bot in a private chat within 30 minutes",
-    );
-  }
 
   async function sendMainMenu(chatId: number): Promise<void> {
     if (state.pendingSend?.status === "uncertain") {
@@ -337,43 +337,16 @@ export async function runTelegramBot(): Promise<void> {
   const handleMessage = async (
     message: NonNullable<TelegramUpdate["message"]>,
   ): Promise<void> => {
-    if (!isPrivateMessage(message) || !message.from || !message.text) return;
+    if (
+      !isPrivateMessage(message) ||
+      !message.from ||
+      !message.text ||
+      !isAllowedTelegramUser(message.from)
+    ) {
+      return;
+    }
     const chatId = message.chat.id;
-    const senderId = message.from.id;
     const text = message.text.trim();
-
-    if (state.ownerUserId === undefined) {
-      const match = text.match(/^\/claim(?:@\w+)?\s+(\S+)$/);
-      if (!match) {
-        await api.sendMessage(
-          chatId,
-          "This bot is not claimed yet. The workspace owner must claim it before it can be used.",
-        );
-        return;
-      }
-      if (!claimCode || Date.now() > claimCodeExpiresAt) {
-        await api.sendMessage(
-          chatId,
-          "The claim code has expired. Restart the API Server workflow and use the new code shown in its logs.",
-        );
-        return;
-      }
-      if (match[1] !== claimCode) {
-        await api.sendMessage(chatId, "That owner claim code is not valid.");
-        return;
-      }
-      state.ownerUserId = senderId;
-      claimCode = undefined;
-      await saveTelegramBotState(state);
-      await api.sendMessage(chatId, "Owner access claimed for this Telegram account.");
-      await sendMainMenu(chatId);
-      return;
-    }
-
-    if (senderId !== state.ownerUserId) {
-      await api.sendMessage(chatId, "This bot is private to its owner.");
-      return;
-    }
 
     if (/^\/(?:start|menu)(?:@\w+)?(?:\s|$)/.test(text)) {
       await sendMainMenu(chatId);
@@ -506,7 +479,7 @@ export async function runTelegramBot(): Promise<void> {
     const chatId = callback.message?.chat.id;
     const messageId = callback.message?.message_id;
 
-    if (state.ownerUserId === undefined || callback.from.id !== state.ownerUserId) {
+    if (!isAllowedTelegramUser(callback.from)) {
       await api.answerCallbackQuery(callback.id, "This bot is private to its owner.");
       return;
     }

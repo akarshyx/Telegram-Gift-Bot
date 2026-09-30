@@ -24,12 +24,12 @@ export interface TelegramUpdate {
   message?: {
     message_id: number;
     chat: { id: number; type: string };
-    from?: { id: number };
+    from?: { id: number; username?: string };
     text?: string;
   };
   callback_query?: {
     id: string;
-    from: { id: number };
+    from: { id: number; username?: string };
     data?: string;
     message?: TelegramMessage;
   };

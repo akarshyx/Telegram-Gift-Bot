@@ -10,7 +10,7 @@ A private Telegram bot for sending confirmed regular Gifts with prepaid upgrade 
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
 - Required secret: `BOT_TOKEN` — Telegram BotFather token; keep it in Replit Secrets
-- Bot access: read the one-time claim code from the API Server workflow logs, then send `/claim <code>` to the bot in a private Telegram chat within 30 minutes
+- Bot access is restricted to the configured Telegram user ID and username; other users and groups are ignored
 - Bot commands: `/menu`, `/recipient`, `/gifts`, `/premium`, `/cancel`
 
 ## Stack

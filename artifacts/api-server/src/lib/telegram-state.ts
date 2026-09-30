@@ -18,7 +18,6 @@ export type PendingSend =
     };
 
 export interface TelegramBotState {
-  ownerUserId?: number;
   recipientUserId?: number;
   sentRegularGiftCount: number;
   awaitingRecipient: boolean;
@@ -34,10 +33,6 @@ export async function loadTelegramBotState(): Promise<TelegramBotState> {
     const parsed = JSON.parse(content) as Partial<TelegramBotState>;
 
     return {
-      ownerUserId:
-        Number.isSafeInteger(parsed.ownerUserId) && parsed.ownerUserId! > 0
-          ? parsed.ownerUserId
-          : undefined,
       recipientUserId:
         typeof parsed.recipientUserId === "number" &&
         Number.isSafeInteger(parsed.recipientUserId) &&
