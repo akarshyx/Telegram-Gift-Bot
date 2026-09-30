@@ -1,5 +1,6 @@
 import app from "./app";
 import { logger } from "./lib/logger";
+import { runTelegramBot } from "./lib/telegram-bot";
 
 const rawPort = process.env["PORT"];
 
@@ -22,4 +23,8 @@ app.listen(port, (err) => {
   }
 
   logger.info({ port }, "Server listening");
+  void runTelegramBot().catch((error: unknown) => {
+    logger.fatal({ error }, "Telegram gift bot failed to start");
+    process.exit(1);
+  });
 });
